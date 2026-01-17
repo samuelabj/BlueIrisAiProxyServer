@@ -13,7 +13,6 @@ if __name__ == "__main__":
         level=settings.LOG_LEVEL,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         handlers=[
-            logging.FileHandler("service.log"),
             logging.StreamHandler(sys.stdout)
         ]
     )
@@ -21,7 +20,8 @@ if __name__ == "__main__":
     logger.info("Starting BlueIrisAiProxyServer Service...")
     
     try:
-        uvicorn.run("src.main:app", host=settings.HOST, port=settings.PORT, log_level=settings.LOG_LEVEL.lower(), reload=False)
+        # log_config=None tells uvicorn to use the existing logging config (from basicConfig)
+        uvicorn.run("src.main:app", host=settings.HOST, port=settings.PORT, log_level=settings.LOG_LEVEL.lower(), reload=False, log_config=None)
     except Exception as e:
         logger.error(f"Failed to start server: {e}")
         sys.exit(1)

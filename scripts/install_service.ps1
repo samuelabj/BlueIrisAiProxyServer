@@ -1,9 +1,23 @@
 # SpeciesNet AI Proxy Service Installer
 
+# Check for Administrator privileges
+if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+    Write-Warning "You do not have Administrator rights to this machine. Log on as an Administrator and re-run this script."
+    exit 1
+}
+
 $ServiceName = "BlueIrisAiProxy"
-$PythonPath = Join-Path $PSScriptRoot "..\.venv\Scripts\python.exe" # Use local venv
-$ScriptPath = Join-Path $PSScriptRoot "..\server.py"
-$AppDirectory = Join-Path $PSScriptRoot ".."
+$PythonPathRaw = Resolve-Path (Join-Path $PSScriptRoot "..\.venv\Scripts\python.exe")
+$ScriptPathRaw = Resolve-Path (Join-Path $PSScriptRoot "..\server.py")
+$AppDirectoryRaw = Resolve-Path (Join-Path $PSScriptRoot "..")
+
+$PythonPath = $PythonPathRaw.Path
+$ScriptPath = $ScriptPathRaw.Path
+$AppDirectory = $AppDirectoryRaw.Path
+
+Write-Host "Debug: PythonPath   = $PythonPath"
+Write-Host "Debug: ScriptPath   = $ScriptPath"
+Write-Host "Debug: AppDirectory = $AppDirectory"
 
 # Check for NSSM
 $NssmPath = Join-Path $PSScriptRoot "nssm.exe"
@@ -19,7 +33,8 @@ if (-not (Test-Path $NssmPath)) {
 }
 
 Write-Host "Installing $ServiceName Service..."
-& $NssmPath install $ServiceName $PythonPath "\"$ScriptPath\""
+# Pass paths directly without manual quote escaping. PowerShell and NSSM handle this.
+& $NssmPath install $ServiceName $PythonPath $ScriptPath
 & $NssmPath set $ServiceName AppDirectory $AppDirectory
 & $NssmPath set $ServiceName Description "SpeciesNet AI Proxy for Blue Iris"
 & $NssmPath set $ServiceName AppStdout ("$AppDirectory\service.log")
@@ -30,4 +45,12 @@ Write-Host "Installing $ServiceName Service..."
 & $NssmPath set $ServiceName AppRotateBytes 5242880
 
 Write-Host "Service installed successfully."
+
+# Verify Configuration
+Write-Host "--- Service Configuration ---"
+& $NssmPath get $ServiceName Application
+& $NssmPath get $ServiceName AppParameters
+& $NssmPath get $ServiceName AppDirectory
+Write-Host "-----------------------------"
+
 Write-Host "You can start it with: nssm start $ServiceName"

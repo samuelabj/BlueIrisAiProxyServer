@@ -10,7 +10,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 if __name__ == "__main__":
     # Configure logging for the service
     logging.basicConfig(
-        level=logging.INFO,
+        level=settings.LOG_LEVEL,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         handlers=[
             logging.FileHandler("service.log"),
@@ -21,7 +21,7 @@ if __name__ == "__main__":
     logger.info("Starting BlueIrisAiProxyServer Service...")
     
     try:
-        uvicorn.run("src.main:app", host=settings.HOST, port=settings.PORT, log_level="info", reload=False)
+        uvicorn.run("src.main:app", host=settings.HOST, port=settings.PORT, log_level=settings.LOG_LEVEL.lower(), reload=False)
     except Exception as e:
         logger.error(f"Failed to start server: {e}")
         sys.exit(1)

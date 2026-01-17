@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     TRIGGER_LABELS: List[str] = ["animal", "cat", "dog", "bird"]
     PORT: int = 8000
     HOST: str = "0.0.0.0"
+    LOG_LEVEL: str = "INFO"
 
     class Config:
         env_file = ".env"

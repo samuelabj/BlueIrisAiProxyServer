@@ -11,8 +11,11 @@ class DetectionProxy:
         self.speciesnet = speciesnet
 
     async def process_image(self, image_data: bytes):
+        logger.debug(f"Processing image of size: {len(image_data)} bytes")
+        
         # 1. Send to Blue Onyx
         bo_response = await self.blue_onyx.detect(image_data)
+        logger.debug(f"Blue Onyx raw response: {bo_response}")
         
         should_run_speciesnet = False
         bo_predictions = bo_response.get("predictions", [])
@@ -35,6 +38,7 @@ class DetectionProxy:
         if should_run_speciesnet:
             logger.info("Running SpeciesNet...")
             sn_predictions = self.speciesnet.predict(image_data)
+            logger.debug(f"SpeciesNet raw predictions: {sn_predictions}")
             if sn_predictions:
                 logger.info(f"SpeciesNet found {len(sn_predictions)} predictions.")
                 # Strategy: Append specialized predictions. 

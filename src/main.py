@@ -8,7 +8,8 @@ import uvicorn
 import logging
 
 # Setup logging
-logging.basicConfig(level=logging.INFO)
+# Setup logging
+# logging.basicConfig(level=logging.INFO) # Handled by server.py or uvicorn
 logger = logging.getLogger("BlueIrisAiProxy")
 
 # Global instances

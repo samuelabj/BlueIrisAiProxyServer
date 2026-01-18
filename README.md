@@ -56,9 +56,26 @@ This service sits between Blue Iris and your existing AI server (Blue Onyx). It 
     ./scripts/install_service.ps1
     ```
 5.  **Start Service**:
-    ```powershell
     nssm start AiVisionRelay
     ```
+
+## Deploying to Another Machine
+
+Use the build scripts to package and deploy to a new machine:
+
+1.  **Package (Source Machine)**:
+    Run `powershell ./scripts/package.ps1`. This creates a zip file in `dist/`.
+
+2.  **Deploy (Target Machine)**:
+    - Copy the zip file to the target machine.
+    - Unzip to `C:\AiVisionRelay`.
+    - Open PowerShell as **Administrator**.
+    - Run `powershell ./scripts/setup.ps1`.
+    
+    The setup script will:
+    - Create the `.venv`.
+    - Install dependencies (including GPU support).
+    - Prompt to install the Windows Service.
 
 ## Blue Iris Configuration
 

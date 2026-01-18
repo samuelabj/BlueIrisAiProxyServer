@@ -65,9 +65,14 @@ async def main():
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
     # 2. File Handler (Rotated by Python) - Captures EVERYTHING (INFO+)
+    # Create logs directory if it doesn't exist
+    log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs")
+    os.makedirs(log_dir, exist_ok=True)
+    log_file_path = os.path.join(log_dir, "server.log")
+
     # Use FlushingFileHandler to ensure logs are written immediately
     file_handler = FlushingFileHandler(
-        "server.log", when="midnight", interval=1, backupCount=7, encoding="utf-8"
+        log_file_path, when="midnight", interval=1, backupCount=7, encoding="utf-8"
     )
     file_handler.setLevel(settings.LOG_LEVEL)
     file_handler.setFormatter(formatter)

@@ -45,8 +45,14 @@ if (-not (Test-Path $NSSM)) {
 & $NSSM install $SERVICE_NAME "$PYTHON_EXEC" "$APP_PATH --service"
 & $NSSM set $SERVICE_NAME AppDirectory "$APP_DIR"
 & $NSSM set $SERVICE_NAME Description "AI Vision Relay - Smart Proxy for Blue Iris"
-& $NSSM set $SERVICE_NAME AppStdout "$APP_DIR\service.log"
-& $NSSM set $SERVICE_NAME AppStderr "$APP_DIR\service.log"
+# Create logs directory
+$LOGS_DIR = Join-Path $APP_DIR "logs"
+if (-not (Test-Path $LOGS_DIR)) {
+    New-Item -ItemType Directory -Force -Path $LOGS_DIR | Out-Null
+}
+
+& $NSSM set $SERVICE_NAME AppStdout "$LOGS_DIR\service.log"
+& $NSSM set $SERVICE_NAME AppStderr "$LOGS_DIR\service.log"
 & $NSSM set $SERVICE_NAME AppRotateFiles 1
 & $NSSM set $SERVICE_NAME AppRotateOnline 1
 & $NSSM set $SERVICE_NAME AppRotateSeconds 86400

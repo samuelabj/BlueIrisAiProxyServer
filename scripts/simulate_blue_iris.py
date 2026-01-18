@@ -28,7 +28,7 @@ def simulate_request(image_path, url="http://localhost:8000/v1/vision/detection"
             print(response.text)
             
     except requests.exceptions.ConnectionError:
-        print("Error: Could not connect to server. Is the BlueIrisAiProxy service running?")
+        print("Error: Could not connect to server. Is the AI-Vision-Relay service running?")
     except Exception as e:
         print(f"An error occurred: {e}")
 

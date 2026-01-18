@@ -10,7 +10,7 @@ import logging
 # Setup logging
 # Setup logging
 # logging.basicConfig(level=logging.INFO) # Handled by server.py or uvicorn
-logger = logging.getLogger("BlueIrisAiProxy")
+logger = logging.getLogger("AiVisionRelay")
 
 # Global instances
 proxy: DetectionProxy = None

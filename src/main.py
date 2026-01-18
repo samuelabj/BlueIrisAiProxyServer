@@ -35,6 +35,14 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+@app.get("/")
+async def root():
+    return {"status": "ok", "service": "AI-Vision-Relay"}
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
 @app.post("/v1/vision/detection")
 async def detect(image: UploadFile = File(...)):
     if not proxy:

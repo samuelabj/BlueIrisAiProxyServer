@@ -56,7 +56,7 @@ if (-not (Test-Path $LOGS_DIR)) {
 & $NSSM set $SERVICE_NAME AppRotateFiles 1
 & $NSSM set $SERVICE_NAME AppRotateOnline 1
 & $NSSM set $SERVICE_NAME AppRotateSeconds 86400
-& $NSSM set $SERVICE_NAME AppRotateBytes 5242880
+& $NSSM set $SERVICE_NAME AppRotateBytes 1048576
 
 Write-Host "Service installed. Starting..."
 & $NSSM start $SERVICE_NAME

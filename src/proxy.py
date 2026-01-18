@@ -87,11 +87,16 @@ class DetectionProxy:
         # This ensures every request produces one high-level INFO log
         
         # Collect labels for logging
-        bo_labels = [p.get("label", "unknown") for p in bo_predictions]
+        def fmt_pred(p):
+            label = p.get("label", "unknown")
+            score = p.get("confidence", p.get("score", 0.0))
+            return f"{label} ({score:.2f})"
+
+        bo_labels = [fmt_pred(p) for p in bo_predictions]
         # Only check valid_sn_predictions if we actually ran SpeciesNet *and* found something
         sn_labels = []
         if should_run_speciesnet and 'valid_sn_predictions' in locals():
-            sn_labels = [p.get("label", "unknown") for p in valid_sn_predictions]
+            sn_labels = [fmt_pred(p) for p in valid_sn_predictions]
 
         msg = f"Request processed. Blue Onyx: {len(bo_predictions)} {bo_labels}, SpeciesNet: "
         if should_run_speciesnet:

@@ -67,7 +67,7 @@ class DetectionProxy:
                         continue
                     
                     # 2. Check Confidence Threshold
-                    score = pred.get("score", 0.0)
+                    score = pred.get("confidence", pred.get("score", 0.0))
                     if score < settings.SPECIESNET_CONFIDENCE_THRESHOLD:
                         logger.debug(f"Ignoring SpeciesNet prediction '{pred.get('label')}' with low confidence: {score:.2f} < {settings.SPECIESNET_CONFIDENCE_THRESHOLD}")
                         continue

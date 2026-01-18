@@ -34,9 +34,11 @@ def handle_exception(exc_type, exc_value, exc_traceback):
         sys.__excepthook__(exc_type, exc_value, exc_traceback)
         return
     logging.getLogger("Server").critical("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+    sys.exit(1)
 
 def handle_thread_exception(args):
     logging.getLogger("Server").critical(f"Uncaught thread exception in {args.thread.name}", exc_info=(args.exc_type, args.exc_value, args.exc_traceback))
+    os._exit(1) # Force exit to prevent zombie process
 
 # Filter for Service Logs (Stdout)
 class ServiceFilter(logging.Filter):

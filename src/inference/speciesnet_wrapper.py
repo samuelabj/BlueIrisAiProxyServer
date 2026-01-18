@@ -1,4 +1,5 @@
 from speciesnet import SpeciesNet, DEFAULT_MODEL
+from speciesnet.detector import SpeciesNetDetector
 from PIL import Image
 import io
 import tempfile
@@ -20,6 +21,11 @@ class SpeciesNetWrapper:
         """
         Initializes the SpeciesNet model using the default model.
         """
+        # Optimize NMS by raising threshold (default is 0.01)
+        # We filter for 0.7 later anyway, so 0.3 is safe and much faster.
+        SpeciesNetDetector.DETECTION_THRESHOLD = 0.3
+        logger.info(f"Optimized SpeciesNet NMS threshold to {SpeciesNetDetector.DETECTION_THRESHOLD}")
+
         logger.info(f"Initializing SpeciesNet with model: {DEFAULT_MODEL}")
         # Initialize with the default model. 
         # components="all" implies detector + classifier + ensemble

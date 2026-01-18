@@ -1,6 +1,7 @@
 import uvicorn
 from src.config import settings
 import logging
+from logging.handlers import TimedRotatingFileHandler
 import sys
 import os
 import asyncio
@@ -26,15 +27,35 @@ def asyncio_exception_handler(loop, context):
     # Call default handler for everything else
     loop.default_exception_handler(context)
 
+# Filter for Service Logs (Stdout)
+class ServiceFilter(logging.Filter):
+    def filter(self, record):
+        # Allow warnings/errors OR messages specifically from "Server" logger (startup/shutdown)
+        return record.levelno >= logging.WARNING or record.name == "Server"
+
 async def main():
+    # 1. Define Formatters
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
+    # 2. File Handler (Rotated by Python) - Captures EVERYTHING (INFO+)
+    file_handler = TimedRotatingFileHandler(
+        "server.log", when="midnight", interval=1, backupCount=7, encoding="utf-8"
+    )
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(formatter)
+
+    # 3. Stream Handler (Captured by NSSM) - Captures WARNING+ and Service Lifecycle
+    stream_handler = logging.StreamHandler(sys.stdout)
+    stream_handler.setLevel(logging.WARNING) # Default to WARNING for quiet service logs
+    stream_handler.setFormatter(formatter)
+    stream_handler.addFilter(ServiceFilter())
+
     # Configure logging for the service
     logging.basicConfig(
         level=settings.LOG_LEVEL,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        handlers=[
-            logging.StreamHandler(sys.stdout)
-        ]
+        handlers=[file_handler, stream_handler]
     )
+    
     logger = logging.getLogger("Server")
     logger.info("Starting AI-Vision-Relay Service...")
     

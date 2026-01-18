@@ -7,7 +7,7 @@ import asyncio
 
 logger = logging.getLogger(__name__)
 
-class DetectionProxy:
+class DetectionEngine:
     def __init__(self, blue_onyx_client: BlueOnyxClient, speciesnet: SpeciesNetWrapper):
         self.blue_onyx = blue_onyx_client
         self.speciesnet = speciesnet

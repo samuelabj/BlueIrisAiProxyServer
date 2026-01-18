@@ -1,21 +1,24 @@
 import unittest
 from unittest.mock import AsyncMock, MagicMock, patch
-import asyncio
 import sys
 import os
+import asyncio
 
 # Add project root to path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.proxy import DetectionProxy
 from src.clients.blue_onyx import BlueOnyxClient
 from src.inference.speciesnet_wrapper import SpeciesNetWrapper
+from src.engine import DetectionEngine
+from src.config import settings
 
-class TestDetectionProxy(unittest.TestCase):
+class TestDetectionEngine(unittest.TestCase):
     def setUp(self):
         self.blue_onyx = MagicMock(spec=BlueOnyxClient)
         self.speciesnet = MagicMock(spec=SpeciesNetWrapper)
-        self.proxy = DetectionProxy(self.blue_onyx, self.speciesnet)
+        # Mock settings for the engine
+        settings.TRIGGER_LABELS = ["cat", "empty"]
+        self.engine = DetectionEngine(self.blue_onyx, self.speciesnet)
         self.image_data = b"fake_image_bytes"
 
     def test_blue_onyx_no_trigger(self):
@@ -26,7 +29,7 @@ class TestDetectionProxy(unittest.TestCase):
         })
         
         # Action
-        result = asyncio.run(self.proxy.process_image(self.image_data))
+        result = asyncio.run(self.engine.process_image(self.image_data))
         
         # Assert
         self.speciesnet.predict.assert_not_called()
@@ -44,11 +47,11 @@ class TestDetectionProxy(unittest.TestCase):
         ]
         
         # Action
-        result = asyncio.run(self.proxy.process_image(self.image_data))
+        result = asyncio.run(self.engine.process_image(self.image_data))
         
         # Assert
         self.speciesnet.predict.assert_called_once()
-        self.assertEqual(len(result["predictions"]), 2) # cat + Felis catus
+        self.assertEqual(len(result["predictions"]), 3) # cat + Felis catus + generic animal
 
     def test_blue_onyx_empty_response(self):
         # Setup: Blue Onyx finds nothing (trigger condition: empty)
@@ -61,11 +64,11 @@ class TestDetectionProxy(unittest.TestCase):
         ]
         
         # Action
-        result = asyncio.run(self.proxy.process_image(self.image_data))
+        result = asyncio.run(self.engine.process_image(self.image_data))
         
         # Assert
         self.speciesnet.predict.assert_called_once()
-        self.assertEqual(len(result["predictions"]), 1)
+        self.assertEqual(len(result["predictions"]), 2) # Possum + generic animal
         self.assertEqual(result["predictions"][0]["label"], "Possum")
 
 if __name__ == "__main__":

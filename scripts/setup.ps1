@@ -59,7 +59,18 @@ $reqFile = Join-Path $PSScriptRoot "..\requirements.txt"
 
 Write-Host "Dependencies installed successfully." -ForegroundColor Green
 
-# 4. Prompt for Service Installation
+# 3b. Force install PyTorch with CUDA support (Fix for Windows)
+Write-Host "Enforcing PyTorch CUDA installation..." -ForegroundColor Cyan
+& $pipExec install torch torchvision --upgrade --force-reinstall --index-url https://download.pytorch.org/whl/cu118
+
+# 4. Verify GPU Availability
+Write-Host "Verifying GPU availability..."
+& python -c "import torch; print(f'CUDA Available: {torch.cuda.is_available()}')"
+if ($LASTEXITCODE -ne 0) {
+    Write-Warning "Failed to verify CUDA availability."
+}
+
+# 5. Prompt for Service Installation
 $response = Read-Host "Do you want to install/update the Windows Service now? (y/n)"
 if ($response -eq 'y') {
     $installScript = Join-Path $PSScriptRoot "install_service.ps1"

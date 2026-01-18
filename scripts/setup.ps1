@@ -4,11 +4,33 @@ Write-Host "=== AI-Vision-Relay Setup ===" -ForegroundColor Cyan
 
 # 1. Check for Python
 try {
-    $pythonVersion = python --version 2>&1
-    Write-Host "Found Python: $pythonVersion" -ForegroundColor Green
+    $pythonOutput = python --version 2>&1 | Out-String
+    Write-Host "Found Python: $pythonOutput" -ForegroundColor Green
+    
+    # Parse version (using -match on a single string ensures $matches is populated)
+    # The regex needs to handle potential whitespace trimming
+    if ($pythonOutput.Trim() -match "Python (\d+)\.(\d+)") {
+        $major = [int]$matches[1]
+        $minor = [int]$matches[2]
+        
+        # Enforce strict compatibility: 3.10 <= Version < 3.13
+        if ($major -eq 3 -and ($minor -ge 10 -and $minor -le 12)) {
+            Write-Host "Version compatibility verified." -ForegroundColor Green
+        }
+        else {
+            Write-Error "Unsupported Python version: $major.$minor"
+            Write-Error "SpeciesNet requires Python 3.10, 3.11, or 3.12."
+            Write-Error "Python 3.13+ is NOT yet supported."
+            exit 1
+        }
+    }
+    else {
+        Write-Warning "Could not parse Python version from output: '$pythonOutput'"
+        Write-Warning "Proceeding with caution..."
+    }
 }
 catch {
-    Write-Error "Python is not installed or not in PATH. Please install Python 3.10+ before running setup."
+    Write-Error "Python is not installed or not in PATH. Please install Python 3.10, 3.11, or 3.12 before running setup."
     exit 1
 }
 

@@ -85,10 +85,18 @@ class DetectionProxy:
 
         # Consolidated Summary Log (INFO)
         # This ensures every request produces one high-level INFO log
-        msg = f"Request processed. Blue Onyx: {len(bo_predictions)}, SpeciesNet: "
+        
+        # Collect labels for logging
+        bo_labels = [p.get("label", "unknown") for p in bo_predictions]
+        # Only check valid_sn_predictions if we actually ran SpeciesNet *and* found something
+        sn_labels = []
+        if should_run_speciesnet and 'valid_sn_predictions' in locals():
+            sn_labels = [p.get("label", "unknown") for p in valid_sn_predictions]
+
+        msg = f"Request processed. Blue Onyx: {len(bo_predictions)} {bo_labels}, SpeciesNet: "
         if should_run_speciesnet:
              # Just show the count of VALID predictions added
-             msg += f"{len(valid_sn_predictions) if 'valid_sn_predictions' in locals() else 0}"
+             msg += f"{len(sn_labels)} {sn_labels}"
         else:
             msg += "Skipped (No Trigger)"
         

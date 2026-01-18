@@ -5,6 +5,7 @@ class Settings(BaseSettings):
     BLUE_ONYX_URL: str = "http://localhost:5000"
     SPECIESNET_REGION: str = "AUS"
     SPECIESNET_BLANK_LABEL: str = "f1856211-cfb7-4a5b-9158-c0f72fd09ee6;;;;;;blank"
+    SPECIESNET_CONFIDENCE_THRESHOLD: float = 0.7
     TRIGGER_LABELS: List[str] = ["animal", "cat", "dog", "bird"]
     PORT: int = 8000
     HOST: str = "0.0.0.0"

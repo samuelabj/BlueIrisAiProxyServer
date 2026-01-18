@@ -50,13 +50,21 @@ class DetectionProxy:
             
             logger.debug(f"SpeciesNet raw predictions: {sn_predictions}")
             
-            # Filter blank predictions
+            # Filter blank predictions and check confidence
             valid_sn_predictions = []
             if sn_predictions:
                 for pred in sn_predictions:
+                    # 1. Check Blank Label
                     if pred.get("label") == settings.SPECIESNET_BLANK_LABEL:
                         logger.debug("Ignoring SpeciesNet blank prediction.")
                         continue
+                    
+                    # 2. Check Confidence Threshold
+                    score = pred.get("score", 0.0)
+                    if score < settings.SPECIESNET_CONFIDENCE_THRESHOLD:
+                        logger.debug(f"Ignoring SpeciesNet prediction '{pred.get('label')}' with low confidence: {score:.2f} < {settings.SPECIESNET_CONFIDENCE_THRESHOLD}")
+                        continue
+                        
                     valid_sn_predictions.append(pred)
             
             if valid_sn_predictions:
@@ -65,7 +73,7 @@ class DetectionProxy:
                 # Blue Iris will see all of them.
                 final_predictions.extend(valid_sn_predictions)
             else:
-                logger.info("SpeciesNet found nothing (or filtered all blank predictions).")
+                logger.info("SpeciesNet found nothing (or filtered all predictions).")
         
         return {
             "success": True, 

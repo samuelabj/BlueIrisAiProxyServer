@@ -47,7 +47,7 @@ class DetectionProxy:
                     should_run_speciesnet = True
                     break
         
-        final_predictions = bo_predictions
+        final_predictions = list(bo_predictions)
         
         # 2. Run SpeciesNet if triggered
         if should_run_speciesnet:

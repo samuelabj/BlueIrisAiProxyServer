@@ -5,6 +5,7 @@ from logging.handlers import TimedRotatingFileHandler
 import sys
 import os
 import asyncio
+import threading
 
 # Ensure src is in pythonpath
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -25,7 +26,17 @@ def asyncio_exception_handler(loop, context):
         return
 
     # Call default handler for everything else
+    # Call default handler for everything else
     loop.default_exception_handler(context)
+
+def handle_exception(exc_type, exc_value, exc_traceback):
+    if issubclass(exc_type, KeyboardInterrupt):
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        return
+    logging.getLogger("Server").critical("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+
+def handle_thread_exception(args):
+    logging.getLogger("Server").critical(f"Uncaught thread exception in {args.thread.name}", exc_info=(args.exc_type, args.exc_value, args.exc_traceback))
 
 # Filter for Service Logs (Stdout)
 class ServiceFilter(logging.Filter):
@@ -57,7 +68,12 @@ async def main():
     )
     
     logger = logging.getLogger("Server")
+    logger = logging.getLogger("Server")
     logger.info("Starting AI-Vision-Relay Service...")
+    
+    # Register Global Exception Hooks
+    sys.excepthook = handle_exception
+    threading.excepthook = handle_thread_exception
     
     try:
         # log_config=None tells uvicorn to use the existing logging config (from basicConfig)

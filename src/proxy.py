@@ -21,7 +21,7 @@ class DetectionProxy:
         bo_response = await self.blue_onyx.detect(image_data)
         end_time_bo = time.perf_counter()
         duration_bo = (end_time_bo - start_time_bo) * 1000
-        logger.info(f"Blue Onyx inference took {duration_bo:.2f}ms")
+        logger.debug(f"Blue Onyx inference took {duration_bo:.2f}ms")
         logger.debug(f"Blue Onyx raw response: {bo_response}")
         
         should_run_speciesnet = False
@@ -29,13 +29,13 @@ class DetectionProxy:
         
         # Logic: If empty predictions OR specific labels found
         if not bo_predictions:
-            logger.info("Blue Onyx returned no predictions. Triggering SpeciesNet.")
+            logger.debug("Blue Onyx returned no predictions. Triggering SpeciesNet.")
             should_run_speciesnet = True
         else:
             for pred in bo_predictions:
                 label = pred.get("label", "").lower()
                 if label in [t.lower() for t in settings.TRIGGER_LABELS]:
-                    logger.info(f"Blue Onyx detected trigger '{label}'. Triggering SpeciesNet.")
+                    logger.debug(f"Blue Onyx detected trigger '{label}'. Triggering SpeciesNet.")
                     should_run_speciesnet = True
                     break
         
@@ -43,9 +43,9 @@ class DetectionProxy:
         
         # 2. Run SpeciesNet if triggered
         if should_run_speciesnet:
-            logger.info("Waiting for SpeciesNet lock...")
+            logger.debug("Waiting for SpeciesNet lock...")
             async with self.processing_lock:
-                logger.info("Acquired SpeciesNet lock. Running inference...")
+                logger.debug("Acquired SpeciesNet lock. Running inference...")
                 start_time_sn = time.perf_counter()
                 
                 # Run the blocking prediction in a separate thread to keep the event loop responsive
@@ -53,7 +53,7 @@ class DetectionProxy:
                 
                 end_time_sn = time.perf_counter()
                 duration_sn = (end_time_sn - start_time_sn) * 1000
-                logger.info(f"SpeciesNet inference took {duration_sn:.2f}ms")
+                logger.debug(f"SpeciesNet inference took {duration_sn:.2f}ms")
             
             logger.debug(f"SpeciesNet raw predictions: {sn_predictions}")
             
@@ -80,7 +80,7 @@ class DetectionProxy:
                 # Blue Iris will see all of them.
                 final_predictions.extend(valid_sn_predictions)
             else:
-                logger.info("SpeciesNet found nothing (or filtered all predictions).")
+                logger.debug("SpeciesNet found nothing (or filtered all predictions).")
         
         return {
             "success": True, 

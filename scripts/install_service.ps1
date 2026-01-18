@@ -42,7 +42,7 @@ if (-not (Test-Path $NSSM)) {
 # Install
 # Command: python.exe server.py
 # Use quotes around paths to handle spaces
-& $NSSM install $SERVICE_NAME "$PYTHON_EXEC" "$APP_PATH"
+& $NSSM install $SERVICE_NAME "$PYTHON_EXEC" "$APP_PATH --service"
 & $NSSM set $SERVICE_NAME AppDirectory "$APP_DIR"
 & $NSSM set $SERVICE_NAME Description "AI Vision Relay - Smart Proxy for Blue Iris"
 & $NSSM set $SERVICE_NAME AppStdout "$APP_DIR\service.log"

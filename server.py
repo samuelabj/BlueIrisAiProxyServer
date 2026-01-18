@@ -55,11 +55,18 @@ async def main():
     file_handler.setLevel(settings.LOG_LEVEL)
     file_handler.setFormatter(formatter)
 
-    # 3. Stream Handler (Captured by NSSM) - Captures WARNING+ and Service Lifecycle
+    # 3. Stream Handler (Console/Service)
     stream_handler = logging.StreamHandler(sys.stdout)
-    stream_handler.setLevel(logging.WARNING) # Default to WARNING for quiet service logs
     stream_handler.setFormatter(formatter)
-    stream_handler.addFilter(ServiceFilter())
+    
+    # Logic: Default to Console (Verbose), switch to Service (Quiet) if flag present
+    if "--service" in sys.argv:
+        # Service Mode: Quiet, filtered (for NSSM)
+        stream_handler.setLevel(logging.WARNING)
+        stream_handler.addFilter(ServiceFilter())
+    else:
+        # Console Mode: Verbose (for debugging)
+        stream_handler.setLevel(settings.LOG_LEVEL)
 
     # Configure logging for the service
     logging.basicConfig(

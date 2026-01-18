@@ -14,6 +14,7 @@ class DetectionProxy:
         self.processing_lock = asyncio.Lock()
 
     async def process_image(self, image_data: bytes):
+        logger.info(f"Received detection request for image of size: {len(image_data)} bytes")
         logger.debug(f"Processing image of size: {len(image_data)} bytes")
         
         # 1. Send to Blue Onyx

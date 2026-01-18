@@ -93,6 +93,21 @@ async def main():
     
     logger = logging.getLogger("Server")
     logger = logging.getLogger("Server")
+    
+    # Smart silencing for Uvicorn and other libraries
+    # Always silence matplotlib
+    logging.getLogger("matplotlib").setLevel(logging.WARNING)
+
+    # Conditionally silence Uvicorn access logs
+    if settings.LOG_LEVEL == "DEBUG":
+        # Allow access logs in debug mode
+        logging.getLogger("uvicorn.access").setLevel(logging.INFO)
+        logging.getLogger("uvicorn.error").setLevel(logging.INFO)
+    else:
+        # Hide access logs in normal operation (INFO/WARNING)
+        logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
+        logging.getLogger("uvicorn.error").setLevel(logging.WARNING)
+
     logger.info("Starting AI-Vision-Relay Service...")
     
     # Register Global Exception Hooks

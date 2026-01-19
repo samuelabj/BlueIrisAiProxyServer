@@ -16,6 +16,7 @@ class SpeciesNetWrapper:
     def __init__(self, region: str = "AUS"):
         self.region = region  # specific to country code, e.g., 'AUS'
         self.model = None
+        self.device_name = "CPU"
 
     def initialize(self):
         """
@@ -29,18 +30,19 @@ class SpeciesNetWrapper:
         logger.info(f"Initializing SpeciesNet with model: {DEFAULT_MODEL}")
         # Initialize with the default model. 
         # components="all" implies detector + classifier + ensemble
-        # components="all" implies detector + classifier + ensemble
         self.model = SpeciesNet(model_name=DEFAULT_MODEL)
         
         # Log Device Info
         if torch.cuda.is_available():
             try:
-                device_name = torch.cuda.get_device_name(0)
-                logger.info(f"GPU Detected: {device_name}. SpeciesNet will use CUDA.")
+                self.device_name = torch.cuda.get_device_name(0)
+                logger.info(f"GPU Detected: {self.device_name}. SpeciesNet will use CUDA.")
             except Exception as e:
                  logger.warning(f"GPU detected but failed to get name: {e}")
+                 self.device_name = "CUDA (Unknown)"
                  logger.info("SpeciesNet will use CUDA.")
         else:
+            self.device_name = "CPU"
             logger.warning("GPU NOT Detected. SpeciesNet will use CPU (slower).")
 
     def predict(self, image_data: bytes) -> List[Dict[str, Any]]:

@@ -38,11 +38,11 @@ async def health():
     return {"status": "healthy"}
 
 @app.post("/v1/vision/detection")
-async def detect(request: Request):
+async def detect(image: UploadFile = File(...)):
     # Determine which client sent the request (Blue Iris usually checks /v1/vision/detection)
     # Just forward to engine
     try:
-        image_data = await request.body()
+        image_data = await image.read()
         result = await engine.process_image(image_data)
         return result
     except Exception as e:
